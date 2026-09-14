@@ -1,0 +1,31 @@
+﻿@page "/"
+@using BlazorCrudApp.Client.Features.Categories
+
+<PageTitle>BlazorCrudApp - Products</PageTitle>
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+    <RadzenStack Gap="0">
+        <h3 class="test">Products</h3>
+        <p>Manage your products and selling prices</p>
+    </RadzenStack>
+    <RadzenButton Icon="add" Text="Add Product" Click="@OpenDialog"/>
+</RadzenStack>
+<RadzenTabs>
+    <Tabs>
+        <RadzenTabsItem Text="Products">
+            <ProductsList />
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="Categories">
+            <CategoriesList />
+        </RadzenTabsItem>
+    </Tabs>
+</RadzenTabs>
+@code {
+    [Inject] public ProductApiClient ProductClient { get; set; } = null!;
+    [Inject] public DialogService DialogService { get; set; } = null!;
+    
+    private async Task OpenDialog()
+    {
+        await DialogService.OpenAsync<CreateProductForm>(
+            "Add Product");
+    }
+}

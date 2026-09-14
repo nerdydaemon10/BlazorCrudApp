@@ -1,0 +1,45 @@
+# Build output
+**/bin/
+**/obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.rsuser
+
+# Rider / ReSharper
+.idea/
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Visual Studio Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local Environment / Secrets
+.env
+.env.*
+!.env.example
+
+# Local development configuration
+
+# Test results / coverage
+TestResults/
+coverage/
+
+# Generated files
+Generated/
+
+# SQLite Databases
+*.db
+*.db-shm
+*.db-wal

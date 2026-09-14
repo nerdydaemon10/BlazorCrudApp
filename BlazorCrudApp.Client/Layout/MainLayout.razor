@@ -1,0 +1,32 @@
+﻿@inherits LayoutComponentBase
+
+<RadzenLayout>
+    <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+            <RadzenSidebarToggle Click="@(() => _isSidebarExpanded = !_isSidebarExpanded)"></RadzenSidebarToggle>
+            <RadzenLabel Text="BlazorCrudApp" />
+        </RadzenStack>
+    </RadzenHeader>
+    <RadzenSidebar @bind-Expanded="_isSidebarExpanded">
+        <RadzenPanelMenu>
+            <RadzenPanelMenuItem Text="Products" Icon="local_mall" />
+        </RadzenPanelMenu>
+    </RadzenSidebar>
+    <RadzenBody>
+        <div class="mb-3">
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/" Text="Home" />
+                <RadzenBreadCrumbItem Path="/" Text="User Management"></RadzenBreadCrumbItem>
+            </RadzenBreadCrumb>
+        </div>
+        <main>
+            @Body
+        </main>
+    </RadzenBody>
+    <RadzenFooter>
+        BlazorCrudApp &copy; 2026
+    </RadzenFooter>
+</RadzenLayout>
+@code {
+    private bool _isSidebarExpanded;
+}

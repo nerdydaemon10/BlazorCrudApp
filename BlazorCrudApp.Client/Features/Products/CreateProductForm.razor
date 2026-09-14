@@ -1,0 +1,33 @@
+﻿@inject DialogService DialogService;
+
+<form>
+    <RadzenStack>
+        <RadzenStack>
+            <RadzenStack>
+                <RadzenLabel Component="ProductName">
+                    Product Name <span style="color: var(--rz-danger);">*</span>
+                </RadzenLabel>
+                <RadzenTextBox Name="ProductName" Placeholder="e.g., Coca-Cola" />
+            </RadzenStack>
+            <RadzenStack>
+                <RadzenLabel Text="SKU" Component="ProductName" Placeholder="e.g., Coca-Cola" />
+                <RadzenTextBox Name="ProductName" />
+            </RadzenStack>
+            <RadzenStack>
+                <RadzenLabel Text="Category" Component="Price" Placeholder="e.g., Coca-Cola" />
+                <RadzenNumeric Name="Price" TValue="decimal" Format="c"  />
+            </RadzenStack>
+            <RadzenStack>
+                <RadzenLabel Text="Price" Component="Price" Placeholder="e.g., Coca-Cola" />
+                <RadzenNumeric Name="Price" TValue="decimal" Format="c"  />
+            </RadzenStack>
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+            <RadzenButton Text="Save"/>
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Secondary" Click="@(() => DialogService.Close(true))"/>
+        </RadzenStack>
+    </RadzenStack>
+</form>
+@code {
+    
+}

@@ -1,0 +1,25 @@
+﻿@inject DialogService DialogService;
+
+<RadzenTemplateForm TItem="CreateCategory" Data="@_model" OnValidSubmit="@HandleSubmit">
+    <RadzenStack>
+        <RadzenStack Gap="0.5rem">
+            <RadzenLabel Component="CategoryName">
+                Category Name <span style="color: var(--rz-danger);">*</span>
+            </RadzenLabel>
+            <RadzenTextBox @bind-Value="_model.Name" Name="CategoryName" Placeholder="e.g. Beverages"/>
+            <RadzenRequiredValidator Component="CategoryName" Text="Category name is required"/>
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+            <RadzenButton Text="Save"/>
+            <RadzenButton type="submit" ButtonStyle="ButtonStyle.Secondary" Text="Cancel" Click="@(() => DialogService.Close(true))"/>
+        </RadzenStack>
+    </RadzenStack>
+</RadzenTemplateForm>
+@code {
+    private readonly CreateCategory _model = new();
+    
+    private void HandleSubmit()
+    {
+        
+    }
+}

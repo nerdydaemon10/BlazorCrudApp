@@ -1,0 +1,116 @@
+﻿@using BlazorCrudApp.Client.Infrastructure
+
+<div class="wrapper">
+    <RadzenAlert AlertStyle="AlertStyle.Danger"
+                 AllowClose="false"
+                 Title="@_errorTitle"
+                 Variant="Variant.Flat"
+                 Visible="@HasError">
+        <RadzenStack AlignItems="@AlignItems.Start"
+                     Gap="0"
+                     JustifyContent="@JustifyContent.Start"
+                     Orientation="@Orientation.Vertical">
+            <p>@_errorMessage</p>
+            <RadzenButton ButtonStyle="ButtonStyle.Light"
+                          Size="ButtonSize.Small"
+                          IsBusy="@_isLoading"
+                          Icon="refresh"
+                          Text="Try Again"
+                          Variant="@Variant.Filled"
+                          Click="@RefreshProductsAsync"/>
+        </RadzenStack>
+    </RadzenAlert>
+    <RadzenDataGrid AllowPaging="true" 
+                    AllowSorting="true"
+                    Data="@_categories" 
+                    IsLoading="@_isLoading"
+                    TItem="Category">
+        <HeaderTemplate>
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenTextBox Placeholder="Search..." class="flex-grow-1"/>
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary" 
+                              Icon="add" 
+                              Text="Add Category"
+                              Click="@OpenDialog"/>
+            </RadzenStack>
+        </HeaderTemplate>
+        <EmptyTemplate>
+            <p class="text-center mb-0">No records to display.</p>
+        </EmptyTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="@nameof(Category.Name)" Title="Name">
+                <EditTemplate Context="category">
+                    <RadzenTextBox @bind-Value="category.Name" Name="Name" Style="width:100%; display: block"/>
+                    <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Filterable="false" TextAlign="TextAlign.Center" Sortable="false" Width="160px">
+                <Template Context="category">
+                    <RadzenButton ButtonStyle="ButtonStyle.Base" 
+                                  Icon="edit" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Shade="Shade.Lighter" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</div>
+
+@code {
+    [Inject] public CategoryRepository Repository { get; set; } = null!;
+    [Inject] public DialogService DialogService { get; set; } = null!;
+    
+    private bool _isLoading;
+    private IEnumerable<Category> _categories = [];
+    private string? _errorTitle;
+    private string? _errorMessage;
+    
+    private bool HasError =>
+        _errorTitle is not null && 
+        _errorMessage is not null;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await LoadProductsAsync();
+    }
+    private async Task OpenDialog()
+    {
+        await DialogService.OpenAsync<CreateCategoryForm>(
+            "Add Category");
+    }
+    private async Task LoadProductsAsync()
+    {
+        _isLoading = true;
+        await InvokeAsync(StateHasChanged);
+        
+        try
+        {
+            _categories = await Repository.GetCategoriesAsync();
+            _errorTitle = null;
+            _errorMessage = null;
+        }
+        catch (Exception ex)
+        {
+            (_errorTitle, _errorMessage) = ex switch
+            {
+                ServerUnavailableException => 
+                (
+                    "Unable to load categories",
+                    ex.Message),
+                _ => (
+                    "Something went wrong", 
+                    ex.Message)
+            };
+        }
+        finally
+        {
+            _isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    private async Task RefreshProductsAsync()
+    {
+        Repository.Invalidate();
+        await LoadProductsAsync();
+    }
+}

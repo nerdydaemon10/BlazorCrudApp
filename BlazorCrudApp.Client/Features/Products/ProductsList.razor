@@ -1,0 +1,111 @@
+﻿@using BlazorCrudApp.Client.Infrastructure
+
+<div class="wrapper">
+    <RadzenAlert AlertStyle="AlertStyle.Danger"
+                 AllowClose="false"
+                 Title="@_errorTitle"
+                 Variant="Variant.Flat"
+                 Visible="@HasError">
+        <RadzenStack AlignItems="@AlignItems.Start"
+                     Gap="0"
+                     JustifyContent="@JustifyContent.Start"
+                     Orientation="@Orientation.Vertical">
+            <p>@_errorMessage</p>
+            <RadzenButton ButtonStyle="ButtonStyle.Light"
+                          Size="ButtonSize.Small"
+                          IsBusy="@_isLoading"
+                          Icon="refresh"
+                          Text="Try Again"
+                          Variant="@Variant.Filled"
+                          Click="@RefreshProductsAsync"/>
+        </RadzenStack>
+    </RadzenAlert>
+    <RadzenDataGrid Data="@_products" IsLoading="@_isLoading" AllowPaging="true" AllowSorting="true">
+        <HeaderTemplate>
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenTextBox Placeholder="Search product, sku, category..." class="flex-grow-1"/>
+                @* <RadzenButton Text="Add Product" Icon="add" Click="@OpenDialog" /> *@
+            </RadzenStack>
+        </HeaderTemplate>
+        <EmptyTemplate>
+            <p class="text-center mb-0">No records to display.</p>
+        </EmptyTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="@nameof(Product.Name)" Title="Name" Frozen="true" Width="160px"/>
+            <RadzenDataGridColumn Property="@nameof(Product.Sku)" Title="SKU" Width="140px"/>
+            <RadzenDataGridColumn Property="@nameof(Product.Category)" Title="Category" Width="140px"/>
+            <RadzenDataGridColumn Property="@nameof(Product.Price)" Title="Price" FormatString="₱{0:N2}" Width="140px"></RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="@nameof(Product.Stock)" Title="Stock" Width="120px">
+                <Template Context="product">
+                    @product.Stock.ToQuantityString("pc", "pcs")
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="@nameof(Product.Status)" Title="Status" Width="120px">
+                <Template Context="product">
+                    <RadzenBadge BadgeStyle="@product.StatusBadgeStyle" Shade="Shade.Lighter" class="text-none">
+                        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.2rem" AlignItems="AlignItems.Center">
+                            <RadzenIcon Icon="@product.StatusIcon" Style="font-size: 0.7rem"/>
+                            @product.Status.GetDisplayName()
+                        </RadzenStack>
+                    </RadzenBadge>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</div>
+@code {
+    [Inject] public ProductRepository Repository { get; set; } = null!;
+    
+    private bool _isLoading;
+    private IEnumerable<Product> _products = [];
+    private string? _errorTitle;
+    private string? _errorMessage;
+    
+    private bool HasError =>
+        _errorTitle is not null && 
+        _errorMessage is not null;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await LoadProductsAsync();
+    }
+    
+    private async Task LoadProductsAsync()
+    {
+        _isLoading = true;
+        
+        await InvokeAsync(StateHasChanged);
+        
+        try
+        {
+            _products = await Repository.GetProductsAsync();
+            _errorTitle = null;
+            _errorMessage = null;
+        }
+        catch (Exception ex)
+        {
+            (_errorTitle, _errorMessage) = ex switch
+            {
+                ServerUnavailableException => 
+                (
+                    "Unable to load products",
+                    ex.Message),
+                _ => (
+                    "Something went wrong", 
+                    ex.Message)
+            };
+        }
+        finally
+        {
+            _isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private async Task RefreshProductsAsync()
+    {
+        Repository.Invalidate();
+        await LoadProductsAsync();
+    }
+}   

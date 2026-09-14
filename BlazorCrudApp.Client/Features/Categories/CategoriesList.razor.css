@@ -1,0 +1,6 @@
+﻿.wrapper ::deep .rz-custom-header {
+    width: 100% !important;
+}
+.wrapper ::deep .rz-alert-content {
+    width: 100% !important;
+}
