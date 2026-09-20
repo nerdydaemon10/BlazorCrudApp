@@ -11,15 +11,18 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
             .HasMaxLength(100)
             .IsRequired();
         
+        builder.HasIndex(x => x.Name)
+            .IsUnique();
+        
         builder.HasData(
-            new Category
+            new
             {
-                Id = Guid.Parse("83D0314C-8AAE-4FB1-BB67-3D4C2204E029"),
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
                 Name = "Beverages"
             },
-            new Category
+            new
             {
-                Id = Guid.Parse("993258C6-3C8B-438E-B79D-0033E83E12C5"),
+                Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
                 Name = "Food",
             });
     }

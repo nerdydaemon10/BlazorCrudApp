@@ -9,8 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=app.db"));
 
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddCategoryModule();
 builder.Services.AddScoped<ProductService>();
-builder.Services.AddScoped<CategoryService>();
 
 var allowedOrigins = builder.Configuration
     .GetSection("Cors:AllowedOrigins")
@@ -54,13 +56,15 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+// HTTP pipeline
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
+app.UseCors();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
+// var summaries = new[]
+// {
+//     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+// };
 // app.MapGet("/products", (AppDbContext db) => db.Products.ToListAsync());
 // app.MapGet("/weatherforecast", () =>
 // {
@@ -76,7 +80,7 @@ var summaries = new[]
 // })
 // .WithName("GetWeatherForecast");
 
-app.UseCors();
+// Endpoints
 app.MapCategoryEndpoints();
 app.MapProductEndpoints();
 

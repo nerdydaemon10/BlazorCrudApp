@@ -38,11 +38,23 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
         using var scope = host.Services.CreateScope();
         
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var db = scope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
         
         db.Database.EnsureCreated();
         
         return host;
+    }
+    
+    public async Task ResetDatabaseAsync()
+    {
+        await using var scope = Services.CreateAsyncScope();
+
+        var db = scope.ServiceProvider
+            .GetRequiredService<AppDbContext>();
+
+        await db.Database.EnsureDeletedAsync();
+        await db.Database.EnsureCreatedAsync();
     }
     
     protected override void Dispose(bool disposing)
