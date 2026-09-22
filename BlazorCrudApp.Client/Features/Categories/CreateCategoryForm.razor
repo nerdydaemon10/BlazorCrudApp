@@ -1,25 +1,52 @@
-﻿@inject DialogService DialogService;
+﻿@using Blazilla
+@using BlazorCrudApp.Client.Infrastructure
+@inject DialogService DialogService;
 
-<RadzenTemplateForm TItem="CreateCategory" Data="@_model" OnValidSubmit="@HandleSubmit">
+<EditForm EditContext="@_context" OnValidSubmit="@HandleSubmit">
+    <FluentValidator />
     <RadzenStack>
         <RadzenStack Gap="0.5rem">
             <RadzenLabel Component="CategoryName">
                 Category Name <span style="color: var(--rz-danger);">*</span>
             </RadzenLabel>
             <RadzenTextBox @bind-Value="_model.Name" Name="CategoryName" Placeholder="e.g. Beverages"/>
-            <RadzenRequiredValidator Component="CategoryName" Text="Category name is required"/>
+            <ValidationMessage For="@(() => _model.Name)" />
         </RadzenStack>
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
-            <RadzenButton Text="Save"/>
-            <RadzenButton type="submit" ButtonStyle="ButtonStyle.Secondary" Text="Cancel" Click="@(() => DialogService.Close(true))"/>
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save"/>
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Cancel" Click="@(() => DialogService.Close(true))"/>
         </RadzenStack>
     </RadzenStack>
-</RadzenTemplateForm>
+</EditForm>
 @code {
-    private readonly CreateCategory _model = new();
+    [Inject] public CategoryApiClient ApiClient { get; set; } = null!;
     
-    private void HandleSubmit()
+    private EditContext _context = null!;
+    private ValidationAdapter _adapter = null!;
+    
+    private readonly Category _model = new();
+    
+    protected override void OnInitialized()
     {
+        base.OnInitialized();
         
+        _context = new EditContext(_model);
+        _adapter = new ValidationAdapter(_context);
+    }
+    
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            await ApiClient.CreateCategoryAsync(_model);
+        }
+        catch (BadRequestException ex)
+        {
+            _adapter.AddErrors(ex.Errors);
+        }
+        catch (ConflictException ex)
+        {
+            _adapter.AddErrors(ex.Errors);
+        }
     }
 }

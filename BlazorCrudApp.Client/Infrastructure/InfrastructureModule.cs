@@ -6,11 +6,11 @@ public static class InfrastructureModule
         this IServiceCollection services, 
         string baseAddress)
     {
-        services.AddTransient<ServerUnavailableHandler>();
+        services.AddTransient<ApiErrorHandler>();
         
         services.AddHttpClient(ApiClientNames.BlazorCrudApp,
             c => c.BaseAddress = new Uri(baseAddress))
-            .AddHttpMessageHandler<ServerUnavailableHandler>();
+            .AddHttpMessageHandler<ApiErrorHandler>();
         
         return services;
     }

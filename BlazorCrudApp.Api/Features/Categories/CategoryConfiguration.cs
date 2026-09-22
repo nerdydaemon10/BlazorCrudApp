@@ -9,7 +9,8 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
         builder.Property(x => x.Name)
             .HasMaxLength(100)
-            .IsRequired();
+            .IsRequired()
+            .UseCollation("NOCASE"); // Beverages & beverages is same
         
         builder.HasIndex(x => x.Name)
             .IsUnique();

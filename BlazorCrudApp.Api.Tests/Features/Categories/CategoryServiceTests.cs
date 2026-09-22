@@ -1,5 +1,4 @@
 ﻿using BlazorCrudApp.Api.Features.Categories;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlazorCrudApp.Api.Tests.Features.Categories;
@@ -106,8 +105,11 @@ public class CategoryServiceTests
         // Assert
         Assert.NotNull(result);
     }
-    [Fact]
-    public async Task CreateAsync_WhenNameAlreadyExists_ThrowsConflictException()
+    [Theory]
+    [InlineData("Beverages")]
+    [InlineData("BEVERAGES")]
+    [InlineData("beverages")]
+    public async Task CreateAsync_WhenNameAlreadyExists_ThrowsConflictException(string name)
     {
         // Arrange
         await using var db = AppDbContextFactory.Create();
@@ -115,7 +117,7 @@ public class CategoryServiceTests
         var service = new CategoryService(db);
         var request = new CreateCategoryRequest
         {
-            Name = "Beverages"
+            Name = name
         };
         
         // Act
@@ -125,7 +127,6 @@ public class CategoryServiceTests
         // Assert
         Assert.NotNull(exception);
     }
-    
     [Fact]
     public async Task UpdateAsync_WithValidRequest_UpdatesCategory()
     {
@@ -150,8 +151,11 @@ public class CategoryServiceTests
         
         Assert.Equal("Grocery", category?.Name);
     }
-    [Fact]
-    public async Task UpdateAsync_WhenNameExists_ThrowsConflictException()
+    [Theory]
+    [InlineData("Beverages")]
+    [InlineData("BEVERAGES")]
+    [InlineData("beverages")]
+    public async Task UpdateAsync_WhenNameExists_ThrowsConflictException(string name)
     {
         // Arrange
         await using var db = AppDbContextFactory.Create();
@@ -160,7 +164,7 @@ public class CategoryServiceTests
         var id = Guid.Parse("11111111-1111-1111-1111-111111111111");
         var request = new UpdateCategoryRequest
         {
-            Name = "Food"
+            Name = name
         };
         
         // Act

@@ -100,6 +100,24 @@ public class CategoryEndpointsTests(ApiFactory factory)
         Assert.Contains("Name", problem.Errors.Keys);
     }
     [Fact]
+    public async Task CreateCategory_WithExceededMaxLengthName_ReturnsValidationProblems()
+    {
+        // Arrange
+        var request = new CreateCategoryRequest
+        {
+            Name = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        };
+        
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/categories", request);
+        var problem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+        
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.NotNull(problem);
+        Assert.Contains("Name", problem.Errors.Keys);
+    }
+    [Fact]
     public async Task CreateCategory_WhenNameAlreadyExists_ReturnsConflict()
     {
         // Arrange
@@ -166,7 +184,25 @@ public class CategoryEndpointsTests(ApiFactory factory)
         Assert.NotNull(problem);
         Assert.Contains("Name",  problem.Errors.Keys);
     }
-
+    [Fact]
+    public async Task UpdateCategory_WithExceededMaxLengthName_ReturnsValidationProblems()
+    {
+        // Arrange
+        var id = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        var request = new UpdateCategoryRequest
+        {
+            Name = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        };
+        
+        // Act
+        var response = await _client.PutAsJsonAsync($"/api/categories/{id}", request);
+        var problem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+        
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.NotNull(problem);
+        Assert.Contains("Name",  problem.Errors.Keys);
+    }
     [Fact]
     public async Task UpdateCategory_WhenNameAlreadyExists_ReturnsConflict()
     {
